@@ -8,6 +8,7 @@ interface IForm {
   userName: string;
   password: string;
   confirmPassword: string;
+  extraError?: string;
 }
 
 function ToDoList() {
@@ -15,14 +16,22 @@ function ToDoList() {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<IForm>({
     defaultValues: {
       email: "@naver.com",
     },
   });
-  const onValid = (data: any) => {
-    console.log(data);
+  const onValid = (data: IForm) => {
+    if (data.password !== data.confirmPassword) {
+      setError(
+        "confirmPassword",
+        { message: "비밀번호가 일치하지 않습니다." },
+        { shouldFocus: true }
+      );
+    }
   };
+  console.log(errors);
   return (
     <div>
       <form
@@ -49,6 +58,10 @@ function ToDoList() {
         <span>{errors.lastName?.message}</span>
         <input
           {...register("firstName", {
+            validate: {
+              noSubin: (value) =>
+                value.includes("subin") ? "수빈은 사용할 수 없습니다." : true,
+            },
             required: "이름을 입력해주세요.",
           })}
           placeholder="이름"
@@ -74,6 +87,7 @@ function ToDoList() {
         />
         <span>{errors.confirmPassword?.message}</span>
         <button>가입하기</button>
+        <span>{errors.extraError?.message}</span>
       </form>
     </div>
   );
